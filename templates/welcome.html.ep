@@ -1,0 +1,16 @@
+% layout 'default';
+% title 'Welcome';
+<h2>Welcome to Mods Test Service</h2>
+<pre>
+Try:
+
+    # Get status
+    $ curl -v -X GET http://127.0.0.1:3000/sm/v0/get_status
+
+    # Get storage with valid parameters
+    $ curl -v -X GET http://127.0.0.1:3000/sm/v0/get_storage/10K/1D/STD
+
+    # Get storage with invalid parameters
+    $ curl -v -X GET http://127.0.0.1:3000/sm/v0/get_storage/1P/1Q/DTS
+
+</pre>

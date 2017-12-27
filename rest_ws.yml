@@ -1,0 +1,4 @@
+---
+sm_config:    "/home/project.jbisa_gpu/temp_sm/etc/sm.config"
+service_name: "Mods HW Test Service"
+version:      "0.0.0"
