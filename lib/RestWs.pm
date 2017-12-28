@@ -33,10 +33,11 @@ sub startup {
         my $upload_content = sub {
             my $c = shift;
 
-            my $local_location = $c->param('local_location');
+            my $local_location     = $c->param('local_location');
             my $allocated_location = $c->param('allocated_location');
 
-            my $result = CP::CpStorageHandler::upload( $ctx, $local_location, $allocated_location );
+            my $result = CP::CpStorageHandler::upload( $ctx, $local_location,
+                $allocated_location );
 
             $c->render( json => $result );
         };
@@ -45,25 +46,26 @@ sub startup {
         my $download_content = sub {
             my $c = shift;
 
-            my $local_location = $c->param('local_location');
+            my $local_location     = $c->param('local_location');
             my $allocated_location = $c->param('allocated_location');
 
-            my $result = CP::CpStorageHandler::download( $ctx, $local_location, $allocated_location );
+            my $result = CP::CpStorageHandler::download( $ctx, $local_location,
+                $allocated_location );
 
             $c->render( json => $result );
         };
-
-        # copy storage routes.
-
+        
         # upload content.
-        $r->put( '/cp/v0/content' => $upload_content );
+        $r->put( '/cp/v0/content'                 => $upload_content );
         $r->put( '/cp/v0/content/:local_location' => $upload_content );
-        $r->put( '/cp/v0/content/:local_location/:allocated_location' => $upload_content );
+        $r->put( '/cp/v0/content/:local_location/:allocated_location' =>
+              $upload_content );
 
         # download content.
-        $r->get( '/cp/v0/content' => $download_content );
+        $r->get( '/cp/v0/content'                 => $download_content );
         $r->get( '/cp/v0/content/:local_location' => $download_content );
-        $r->get( '/cp/v0/content/:local_location/:allocated_location' => $download_content );
+        $r->get( '/cp/v0/content/:local_location/:allocated_location' =>
+              $download_content );
     }
 
 }

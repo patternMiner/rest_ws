@@ -8,7 +8,8 @@ sub upload {
 
     my $log = $ctx->log;
 
-    $log->info("upload content: local_location=$local_location, allocated_location=$allocated_location");
+    $log->info( "upload content: local_location=$local_location, "
+          . "allocated_location=$allocated_location" );
 
     my $result = {
         errors => [],
@@ -23,7 +24,8 @@ sub download {
 
     my $log = $ctx->log;
 
-    $log->info("download content: local_location=$local_location, allocated_location=$allocated_location");
+    $log->info( "download content: local_location=$local_location, "
+          . "allocated_location=$allocated_location" );
 
     my $result = {
         errors => [],
