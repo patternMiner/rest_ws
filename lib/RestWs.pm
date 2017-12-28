@@ -11,63 +11,67 @@ sub startup {
     my $ctx = AppContextBuilder::build( $self->app->log );
     my $r   = $self->routes;
 
-    # define welcome route
-    {
-        $r->get(
-            '/' => sub {
-                my $c = shift;
+    _define_welcome_route( $r, $ctx );
+    _define_copy_content_routes( $r, $ctx );
+}
 
-                $c->render(
-                    json => {
-                        'service_name' => $ctx->service_name,
-                        'version'      => $ctx->version
-                    }
-                );
-            }
-        );
-    }
+sub _define_welcome_route {
+    my ( $r, $ctx ) = @_;
 
-    # Define the copy routes.
-    {
-        # dispatcher for upload content.
-        my $upload_content = sub {
+    $r->get(
+        '/' => sub {
             my $c = shift;
 
-            my $local_location     = $c->param('local_location');
-            my $allocated_location = $c->param('allocated_location');
+            $c->render(
+                json => {
+                    'service_name' => $ctx->service_name,
+                    'version'      => $ctx->version
+                }
+            );
+        }
+    );
+}
 
-            my $result = CP::CpStorageHandler::upload( $ctx, $local_location,
-                $allocated_location );
+sub _define_copy_content_routes {
+    my ( $r, $ctx ) = @_;
 
-            $c->render( json => $result );
-        };
+    # dispatcher for upload content.
+    my $upload_content = sub {
+        my $c = shift;
 
-        # dispatcher for download content.
-        my $download_content = sub {
-            my $c = shift;
+        my $local_location     = $c->param('local_location');
+        my $allocated_location = $c->param('allocated_location');
 
-            my $local_location     = $c->param('local_location');
-            my $allocated_location = $c->param('allocated_location');
+        my $result = CP::CpStorageHandler::upload( $ctx, $local_location,
+            $allocated_location );
 
-            my $result = CP::CpStorageHandler::download( $ctx, $local_location,
-                $allocated_location );
+        $c->render( json => $result );
+    };
 
-            $c->render( json => $result );
-        };
-        
-        # upload content.
-        $r->put( '/cp/v0/content'                 => $upload_content );
-        $r->put( '/cp/v0/content/:local_location' => $upload_content );
-        $r->put( '/cp/v0/content/:local_location/:allocated_location' =>
-              $upload_content );
+    # dispatcher for download content.
+    my $download_content = sub {
+        my $c = shift;
 
-        # download content.
-        $r->get( '/cp/v0/content'                 => $download_content );
-        $r->get( '/cp/v0/content/:local_location' => $download_content );
-        $r->get( '/cp/v0/content/:local_location/:allocated_location' =>
-              $download_content );
-    }
+        my $local_location     = $c->param('local_location');
+        my $allocated_location = $c->param('allocated_location');
 
+        my $result = CP::CpStorageHandler::download( $ctx, $local_location,
+            $allocated_location );
+
+        $c->render( json => $result );
+    };
+
+    # upload content.
+    $r->put( '/cp/v0/content'                 => $upload_content );
+    $r->put( '/cp/v0/content/:local_location' => $upload_content );
+    $r->put( '/cp/v0/content/:local_location/:allocated_location' =>
+          $upload_content );
+
+    # download content.
+    $r->get( '/cp/v0/content'                 => $download_content );
+    $r->get( '/cp/v0/content/:local_location' => $download_content );
+    $r->get( '/cp/v0/content/:local_location/:allocated_location' =>
+          $download_content );
 }
 
 1;
