@@ -4,21 +4,24 @@ use strict;
 use warnings;
 
 use AppContext;
-use YAML::XS 'LoadFile';
+use Log::Any;
+use Params::ValidationCompiler qw( validation_for );
+use Types::Standard qw( Object Str );
+
+my $param_validator = validation_for(
+  params => {
+    log   => { type => Object, default => sub { Log::Any->get_logger } },
+    service_name   => { type => Str },
+    version => { type => Str },
+  }
+);
 
 sub build {
-    my $log = shift;
+    my (@params) = @_;
 
-    my $config       = LoadFile('rest_ws.yml');
-    my $service_name = $config->{'service_name'};
-    my $version      = $config->{'version'};
+    my %validated_params = $param_validator->(@params);
 
-    my $ctx = AppContext->new(
-        config       => $config,
-        log          => $log,
-        service_name => $service_name,
-        version      => $version
-    );
+    my $ctx = AppContext->new(%validated_params);
 
     return $ctx;
 }

@@ -1,16 +1,24 @@
 use strict;
 use warnings;
-
-use FindBin;
-BEGIN { unshift @INC, "$FindBin::Bin/../lib" }
-
-use Test::More;
+use UnitTesting::Harness;
+use JSON;
 use Test::Mojo;
+use Test2::V0;
+use Test2::Plugin::BailOnFail;
 
-my $t = Test::Mojo->new('RestWs');
+subtest "Test welcome page" => sub {
+      my $config = UnitTesting::Harness::create_test_config();
+      my $t = Test::Mojo->new('RestWs' => $config);
 
-# Test welcome page.
-$t->get_ok('/')->status_is(200)
-  ->json_is( { version => '0.0.0', service_name => 'REST WebService' } );
+      $t->get_ok('/')
+        ->status_is(200)
+        ->json_is({
+            errors => [],
+            items => [{
+                version => '0.0.0',
+                service_name => 'REST Web Service'
+            }]
+      });
+  };
 
 done_testing();

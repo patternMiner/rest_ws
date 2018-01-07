@@ -1,77 +1,40 @@
 package RestWs;
 
 use AppContextBuilder;
-use CP::CpStorageHandler;
+use CP::UploadContentHandler;
+use CP::DownloadContentHandler;
 use Mojo::Base 'Mojolicious';
+use WelcomeRequestHandler;
+use YAML::XS;
 
-# This method will run once at server start
+# Defines the routes and the request dispatchers.
 sub startup {
-    my $self = shift;
+    my ($app) = @_;
 
-    my $ctx = AppContextBuilder::build( $self->app->log );
-    my $r   = $self->routes;
-
-    _define_welcome_route( $r, $ctx );
-    _define_copy_content_routes( $r, $ctx );
-}
-
-sub _define_welcome_route {
-    my ( $r, $ctx ) = @_;
-
-    $r->get(
-        '/' => sub {
-            my $c = shift;
-
-            $c->render(
-                json => {
-                    'service_name' => $ctx->service_name,
-                    'version'      => $ctx->version
-                }
-            );
-        }
+    my $config = _get_config($app);
+    my $ctx = AppContextBuilder::build(
+      service_name => $config->{service_name},
+      version      => $config->{version},
     );
+
+    my $r = $app->routes;
+
+    # routes
+    $r->get( '/' => WelcomeRequestHandler->new( ctx => $ctx )->dispatch );
+    $r->put( '/cp/v0/content' => CP::UploadContentHandler->new( ctx => $ctx )->dispatch );
+    $r->get( '/cp/v0/content' => CP::DownloadContentHandler->new( ctx => $ctx )->dispatch );
 }
 
-sub _define_copy_content_routes {
-    my ( $r, $ctx ) = @_;
+sub _get_config {
+    my ($app) = @_;
 
-    # dispatcher for upload content.
-    my $upload_content = sub {
-        my $c = shift;
+    my $config = $app->config;
+    unless ($config->{config_override}) {
+        my $home = $app->home;
+        $config = YAML::XS::LoadFile("$home/config.yml");
+    }
 
-        my $local_location     = $c->param('local_location');
-        my $allocated_location = $c->param('allocated_location');
-
-        my $result = CP::CpStorageHandler::upload( $ctx, $local_location,
-            $allocated_location );
-
-        $c->render( json => $result );
-    };
-
-    # dispatcher for download content.
-    my $download_content = sub {
-        my $c = shift;
-
-        my $local_location     = $c->param('local_location');
-        my $allocated_location = $c->param('allocated_location');
-
-        my $result = CP::CpStorageHandler::download( $ctx, $local_location,
-            $allocated_location );
-
-        $c->render( json => $result );
-    };
-
-    # upload content.
-    $r->put( '/cp/v0/content'                 => $upload_content );
-    $r->put( '/cp/v0/content/:local_location' => $upload_content );
-    $r->put( '/cp/v0/content/:local_location/:allocated_location' =>
-          $upload_content );
-
-    # download content.
-    $r->get( '/cp/v0/content'                 => $download_content );
-    $r->get( '/cp/v0/content/:local_location' => $download_content );
-    $r->get( '/cp/v0/content/:local_location/:allocated_location' =>
-          $download_content );
+    return $config;
 }
 
 1;
