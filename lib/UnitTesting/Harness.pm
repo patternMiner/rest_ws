@@ -4,25 +4,22 @@ use strict;
 use warnings;
 
 use AppContextBuilder;
+use Archive::Tar;
 use RestWs;
 use Log::Any::Adapter ('Stderr');
 use YAML::XS;
 
 
 sub create_test_config {
-    my ($sm_instance_home) = @_;
-
-    my $config_yml = <<END;
+    return YAML::XS::Load(<<END);
 # Your application's name
 service_name: 'REST Web Service'
 
 # version of this release
 version: '0.0.0'
+
+storage_pool: '/tmp/RestWs/storage_pool'
 END
-
-    my $config = YAML::XS::Load($config_yml);
-
-    return $config;
 }
 
 sub create_test_app_context {
@@ -33,6 +30,19 @@ sub create_test_app_context {
     );
 
     return $ctx;
+}
+
+sub create_test_url {
+    my ($dir, $content) = @_;
+
+    my @files = ("$dir/bar", "$dir/foo");
+    my $tar = Archive::Tar->new();
+    foreach my $file (@files) {
+        $tar->add_data($file, $content);
+    }
+    $tar->write("$dir/files.tgz", COMPRESS_GZIP);
+
+    return "file:/$dir/files.tgz";
 }
 
 sub load_test_data {

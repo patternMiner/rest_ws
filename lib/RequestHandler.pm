@@ -44,6 +44,33 @@ around 'handle_request' => sub {
     return $result;
 };
 
+sub make_result {
+    return {
+      errors => [],
+      items => []
+    };
+}
+
+sub push_item {
+    my ($result, $item) = @_;
+
+    push (@{$result->{items}}, $item);
+    return $result;
+}
+
+sub push_error {
+    my ($result, $error) = @_;
+
+    push (@{$result->{errors}}, $error);
+    return $result;
+}
+
+sub is_error {
+    my ($result) = @_;
+
+    return (@{$result->{errors}});
+}
+
 sub dispatch {
     my ($self) = @_;
 

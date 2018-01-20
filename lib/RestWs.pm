@@ -1,7 +1,6 @@
 package RestWs;
 
 use AppContextBuilder;
-use CP::UploadContentHandler;
 use CP::DownloadContentHandler;
 use Mojo::Base 'Mojolicious';
 use WelcomeRequestHandler;
@@ -15,14 +14,14 @@ sub startup {
     my $ctx = AppContextBuilder::build(
       service_name => $config->{service_name},
       version      => $config->{version},
+      storage_pool => $config->{storage_pool}
     );
 
     my $r = $app->routes;
 
     # routes
     $r->get( '/' => WelcomeRequestHandler->new( ctx => $ctx )->dispatch );
-    $r->put( '/cp/v0/content' => CP::UploadContentHandler->new( ctx => $ctx )->dispatch );
-    $r->get( '/cp/v0/content' => CP::DownloadContentHandler->new( ctx => $ctx )->dispatch );
+    $r->post( '/cp/v0/content' => CP::DownloadContentHandler->new( ctx => $ctx )->dispatch );
 }
 
 sub _get_config {
