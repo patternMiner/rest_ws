@@ -55,7 +55,7 @@ sub _verify_cp_api {
 }
 
 sub _get_test_data {
-    my $allocated_location = join('/', $config->{storage_pool}, 'b');
+    my $allocated_location = join('/', $config->{storage_pool}, 'a');
     return UnitTesting::Harness::load_test_data(<<TEST);
 -
   name: 'Test download content'
