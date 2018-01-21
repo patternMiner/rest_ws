@@ -13,6 +13,7 @@ with 'Step';
 my $state_validator = validation_for(
   params => {
     url  => { type => Str },
+    size => { type => Str },
     basename => { type => Str },
     downloaded_blob => { type => Str }
   },
