@@ -26,7 +26,7 @@ sub execute {
     my $state = $pipeline->state;
     $state_validator->(%{$state});
 
-    my $allocated_location = $pipeline->ctx->storage_manager->get_storage();
+    my $allocated_location = $pipeline->ctx->storage_manager->get_storage($state->{size});
     my $extract_location = join ('/', $allocated_location, $state->{basename});
 
     my $ae = Archive::Extract->new(archive => $state->{downloaded_blob});
