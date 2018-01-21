@@ -6,15 +6,27 @@ use warnings;
 use File::Temp qw(tempdir);
 use LWP::Simple;
 use Moo;
+use Params::ValidationCompiler qw(validation_for);
+use Types::Standard qw( Str );
 
 with 'Step';
 
 has _to_be_freed => (is => 'rw', default => sub { [] });
 
+my $state_validator = validation_for(
+  params => {
+    url  => { type => Str },
+    archive_name => { type => Str }
+  },
+  slurpy => 1 # allow and ignore extra parameters
+);
+
 sub execute {
     my ( $self, $pipeline ) = @_;
 
     my $state = $pipeline->state;
+    $state_validator->(%{$state});
+
     my $download_dir = tempdir( CLEANUP => 1 );
     my $downloaded_blob = join('/', $download_dir, $state->{archive_name});
 

@@ -5,13 +5,26 @@ use warnings;
 
 use Archive::Extract;
 use Moo;
+use Params::ValidationCompiler qw(validation_for);
+use Types::Standard qw( Str );
 
 with 'Step';
+
+my $state_validator = validation_for(
+  params => {
+    url  => { type => Str },
+    basename => { type => Str },
+    downloaded_blob => { type => Str }
+  },
+  slurpy => 1 # allow and ignore extra parameters
+);
 
 sub execute {
     my ( $self, $pipeline ) = @_;
 
     my $state = $pipeline->state;
+    $state_validator->(%{$state});
+
     my $allocated_location = $pipeline->ctx->storage_manager->get_storage();
     my $extract_location = join ('/', $allocated_location, $state->{basename});
 
