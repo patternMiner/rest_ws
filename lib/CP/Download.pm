@@ -11,9 +11,9 @@ use Types::Standard qw( Str );
 
 with 'Step';
 
-has _to_be_freed => (is => 'rw', default => sub { [] });
+has _scope => (is => 'ro', default => sub { [] });
 
-my $state_validator = validation_for(
+my $pipeline_state_validator = validation_for(
   params => {
     url  => { type => Str },
     archive_name => { type => Str }
@@ -25,26 +25,20 @@ sub execute {
     my ( $self, $pipeline ) = @_;
 
     my $state = $pipeline->state;
-    $state_validator->(%{$state});
+    $pipeline_state_validator->(%{$state});
 
     my $download_dir = tempdir( CLEANUP => 1 );
     my $downloaded_blob = join('/', $download_dir, $state->{archive_name});
 
     my $rc = getstore( $state->{url}, $downloaded_blob);
     if (is_success($rc)) {
-        push (@{$self->_to_be_freed}, $download_dir);
+        push (@{$self->_scope}, $download_dir);
         $pipeline->state->{downloaded_blob} = $downloaded_blob;
     } else {
         $pipeline->add_result_error({
           application_error => "Failed to download the url: $state->{url}."
         });
     }
-}
-
-sub cleanup {
-    my ($self, $pipeline) = @_;
-
-    $self->_to_be_freed([]);
 }
 
 1;

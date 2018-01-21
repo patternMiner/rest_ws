@@ -28,7 +28,7 @@ sub _build_log {
 }
 
 sub add_step {
-    my ( $self, $step, $name ) = @_;
+    my ( $self, $step) = @_;
 
     push (@{$self->steps}, $step);
     return $self;
@@ -64,17 +64,13 @@ sub execute {
         try {
             $step->execute($self);
         } catch {
-            $self->add_result_error({ application_error => "$_" });
+            $self->log->infof("Caught exception: %s", $_);
+            my ($msg) = $_ =~ m/Invalid_Parameter:([^:]*):/;
+
+            my $error_item = $msg ? { invalid_parameter => $msg } : { application_error => "$_" };
+            $self->add_result_error($error_item);
         };
 
-    }
-
-    foreach my $step (@{$self->steps}) {
-        try {
-            $step->cleanup($self);
-        } catch {
-            $self->add_result_error({ application_error => "$_" });
-        };
     }
 
     return $self->result;

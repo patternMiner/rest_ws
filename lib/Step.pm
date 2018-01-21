@@ -5,7 +5,6 @@ use warnings;
 use Moo::Role;
 
 requires 'execute';
-requires 'cleanup';
 
 has name => ( is => 'ro', required => 1 );
 

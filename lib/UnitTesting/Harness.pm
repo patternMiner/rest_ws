@@ -24,8 +24,9 @@ END
 
 sub create_test_app_context {
 
-    my $ctx = HSMB::AppContextBuilder::build(
+    my $ctx = AppContextBuilder::build(
         service_name => 'REST Web Service',
+        storage_pool => '/tmp/RestWs/storage_pool',
         version      => '0.0.0',
     );
 

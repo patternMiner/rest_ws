@@ -1,5 +1,6 @@
 use strict;
 use warnings;
+use File::Slurp qw(read_file);
 use File::Temp qw(tempdir);
 use JSON;
 use Test::Mojo;
@@ -10,6 +11,7 @@ use UnitTesting::Harness;
 my $config = UnitTesting::Harness::create_test_config();
 my $test_data_dir = tempdir( CLEANUP => 1 );
 my $url = UnitTesting::Harness::create_test_url($test_data_dir, "Hello, World!");
+my $allocated_location = join('/', $config->{storage_pool}, 'a');
 my $test_data = _get_test_data( );
 
 foreach my $test ( @{$test_data} ) {
@@ -52,13 +54,13 @@ sub _verify_cp_api {
     $t->request_ok($tx)
       ->status_is(200)
       ->json_is($params{expected_result});
+
 }
 
 sub _get_test_data {
-    my $allocated_location = join('/', $config->{storage_pool}, 'a');
     return UnitTesting::Harness::load_test_data(<<TEST);
 -
-  name: 'Test download content'
+  name: 'Test download content handler'
   request_params:
     POST: "/cp/v0/content?url=$url"
   expected_result:
@@ -66,6 +68,5 @@ sub _get_test_data {
         -
             allocated_location: "$allocated_location"
     errors: []
-
 TEST
 }

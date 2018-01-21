@@ -6,14 +6,21 @@ use warnings;
 use Archive::Extract;
 use Moo;
 use Params::ValidationCompiler qw(validation_for);
+use Type::Tiny;
 use Types::Standard qw( Str );
+
+my $SIZE = "Type::Tiny"->new(
+  name       => "Size",
+  constraint => sub { $_ =~ m/^\d+[BKMGT]{1}$/; },
+  message    => sub { "Invalid_Parameter:$_ is not a valid size:" },
+);
 
 with 'Step';
 
 my $state_validator = validation_for(
   params => {
     url  => { type => Str },
-    size => { type => Str },
+    size => { type => $SIZE },
     basename => { type => Str },
     downloaded_blob => { type => Str }
   },
@@ -39,9 +46,5 @@ sub execute {
         $pipeline->add_result_error({ application_error => $error_msg });
     }
  }
-
-sub cleanup {
-    my ($self, $pipeline) = @_;
-}
 
 1;
