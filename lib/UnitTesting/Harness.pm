@@ -5,10 +5,9 @@ use warnings;
 
 use AppContextBuilder;
 use Archive::Tar;
-use RestWs;
 use Log::Any::Adapter ('Stderr');
+use RestWs;
 use YAML::XS;
-
 
 sub create_test_config {
     return YAML::XS::Load(<<END);
@@ -34,14 +33,14 @@ sub create_test_app_context {
 }
 
 sub create_test_url {
-    my ($dir, $content) = @_;
+    my ( $dir, $content ) = @_;
 
-    my @files = ("$dir/bar", "$dir/foo");
+    my @files = ( "awesome/bar", "awesome/foo" );
     my $tar = Archive::Tar->new();
     foreach my $file (@files) {
-        $tar->add_data($file, $content);
+        $tar->add_data( $file, $content );
     }
-    $tar->write("$dir/files.tgz", COMPRESS_GZIP);
+    $tar->write( "$dir/files.tgz", COMPRESS_GZIP );
 
     return "file:/$dir/files.tgz";
 }

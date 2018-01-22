@@ -20,8 +20,8 @@ around 'handle_request' => sub {
     my ( $orig, $self, @rest ) = @_;
 
     my $result = {
-      errors => [],
-      items => []
+        errors => [],
+        items  => []
     };
 
     # log the parameters
@@ -30,11 +30,15 @@ around 'handle_request' => sub {
     # do handle_request
     try {
         $result = $orig->( $self, @rest );
-    } catch {
-        my $error_item = {
-          application_error => "$_"
-        };
-        push (@{$result->{errors}}, $error_item);
+    }
+    catch {
+        $self->ctx->log->infof( "Caught exception: %s", $_ );
+        my ($msg) = $_ =~ m/MissingParameter:([^:]*):/;
+        my $error_item =
+            $msg
+          ? { missing_parameter => $msg }
+          : { application_error => "$_" };
+        push_error($result, $error_item);
     };
 
     # log the result
@@ -46,29 +50,29 @@ around 'handle_request' => sub {
 
 sub make_result {
     return {
-      errors => [],
-      items => []
+        errors => [],
+        items  => []
     };
 }
 
 sub push_item {
-    my ($result, $item) = @_;
+    my ( $result, $item ) = @_;
 
-    push (@{$result->{items}}, $item);
+    push( @{ $result->{items} }, $item );
     return $result;
 }
 
 sub push_error {
-    my ($result, $error) = @_;
+    my ( $result, $error ) = @_;
 
-    push (@{$result->{errors}}, $error);
+    push( @{ $result->{errors} }, $error );
     return $result;
 }
 
 sub is_error {
     my ($result) = @_;
 
-    return (@{$result->{errors}});
+    return ( @{ $result->{errors} } );
 }
 
 sub dispatch {
@@ -77,7 +81,7 @@ sub dispatch {
     return sub {
         my ($c) = @_;
 
-        my $result = $self->handle_request($c->req->params->to_hash);
+        my $result = $self->handle_request( $c->req->params->to_hash );
 
         $c->render( json => $result );
     };

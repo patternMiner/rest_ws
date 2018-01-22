@@ -17,10 +17,12 @@ sub handle_request {
 
     my $result = {
         errors => [],
-        items  => [ {
-          'service_name' => $ctx->service_name,
-          'version'      => $ctx->version
-        } ]
+        items  => [
+            {
+                'service_name' => $ctx->service_name,
+                'version'      => $ctx->version
+            }
+        ]
     };
 
     return $result;
