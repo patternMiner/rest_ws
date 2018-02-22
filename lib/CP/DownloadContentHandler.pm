@@ -1,37 +1,182 @@
+
 package CP::DownloadContentHandler;
 
-use strict;
-use warnings;
-
-use CP::ContentPipeline;
-use CP::Download;
-use CP::Extract;
+use Archive::Extract;
+use CP::Types qw( MaxSize );
+use File::Temp qw(tempdir);
+use Log::Any qw($log);
+use LWP::Simple;
 use Moo;
 use Params::ValidationCompiler qw(validation_for);
-use RequestHandler;
+use Result;
+use String::CRC32;
+use Type::Tiny;
 use Types::Standard qw( Str );
 
-with 'RequestHandler';
+with 'Role::CanHandleRequest';
 
+# Validates the parameters. When a required parameter is not specified, throws a formatted
+# message of the form: "MissngParameter:<parameter_name> is a required parameter.:"
 my $param_validator = validation_for(
-    params => {
-        url  => { type => Str, default => sub { die "MissingParameter:url is a required parameter.:" } },
-        size => {
-            type    => Str,
-            default => sub { '1M' }
-        }
+  params => {
+    content_url => {
+      type    => Str,
+      default => sub {
+          die "MissingParameter:content_url is a required parameter.:";
+      }
+    },
+    max_size => {
+      type    => MaxSize,
+      default => sub {
+          die "MissingParameter:max_size is a required parameter.:";
+      }
+    },
+    crc => {
+      type    => Str,
+      default => sub {
+          die "MissingParameter:crc is a required parameter.:";
+      }
     }
+  }
 );
 
 sub handle_request {
-    my ( $self, @rest ) = @_;
+    my ( $self, $exec_state, @rest ) = @_;
 
     my %validated_params = $param_validator->(@rest);
-    $validated_params{ctx} = $self->ctx;
+    my $storage_manager = $self->ctx->storage_manager;
+    my $result =
+      $storage_manager->get_storage( $validated_params{max_size} );
 
-    return CP::ContentPipeline->new(%validated_params)
-      ->add_step( CP::Download->new( name => 'download' ) )
-      ->add_step( CP::Extract->new( name => 'extract' ) )->execute();
+    return $result if ($result->is_error());
+
+    ## Setup execution state.
+    $exec_state->{$_} = $validated_params{$_} for keys %validated_params;
+    $exec_state->{provisioned_location} =
+      $result->get_payload()->{items}->[0]->{provisioned_location};
+    die "Directory doesn't exist" unless (-d $exec_state->{provisioned_location});
+    ( $exec_state->{archive_name} ) =
+      $exec_state->{content_url} =~ m/.*\/(.*)$/;
+    ( $exec_state->{basename} ) =
+      $exec_state->{archive_name} =~ m/(.*)\..*$/;
+
+    ## Setup execution error handler.
+    my $handle_exec_error = sub {
+        my ($error_result) = @_;
+
+        my $free_storage_result =
+          $storage_manager->free_storage( $exec_state->{provisioned_location} );
+
+        if ($exec_state->{downloaded_blob}) {
+            unlink $exec_state->{downloaded_blob};
+        }
+
+        return ($free_storage_result->is_error())
+          ? $free_storage_result
+          : $error_result;
+    };
+
+    ## Perform step 1: Download.
+    $log->infof("Step: Download: exec_state = %s", $exec_state);
+    $result = _download( $exec_state );
+    $log->infof("Step: Download: result = %s", $result);
+
+    if ($result->is_error()) {
+        return $handle_exec_error->($result);
+    }
+
+    ## Perform step 2: Extract.
+    $log->infof("Step: Extract: exec_state = %s", $exec_state);
+    $result = _extract( $exec_state );
+    $log->infof("Step: Extract: result = %s", $result);
+
+    if ($result->is_error()) {
+        return $handle_exec_error->($result);
+    }
+
+    ## remove the downloaded blob as it got extracted successfully.
+    unlink $exec_state->{downloaded_blob};
+
+    return $result;
+}
+
+sub _download {
+    my ( $exec_state ) = @_;
+
+    my $handle_download_error = sub {
+        my ( $exec_state, $error ) = @_;
+
+        $error =~ s/ at .*$//;
+
+        my $error_msg = sprintf( "Failed to download the content_url: %s%s",
+          $exec_state->{content_url}, $error );
+
+        my $result = Result->new();
+        return $result->push_error( { application_error => $error_msg } );
+    };
+
+    my $downloaded_blob = join( '/',
+      $exec_state->{provisioned_location},
+      $exec_state->{archive_name} );
+
+    my $rc = getstore( $exec_state->{content_url}, $downloaded_blob );
+
+    unless ( is_success($rc) ) {
+        return $handle_download_error->( $exec_state, "" );
+    }
+
+    my $crc = get_crc($downloaded_blob);
+    unless ( $exec_state->{crc} eq $crc ) {
+        return $handle_download_error->( $exec_state,
+          " Error: CRC check failed. expected: $exec_state->{crc}, got $crc"
+        );
+    }
+
+    # update state
+    $exec_state->{downloaded_blob} = $downloaded_blob;
+
+    return Result->new();
+}
+
+sub _extract {
+    my ( $exec_state ) = @_;
+
+    my $result = Result->new();
+    my $handle_extraction_error = sub {
+        my ( $error ) = @_;
+
+        $error =~ s/ at .*$//;
+        my $error_msg = sprintf(
+          "Failed to extract the contents of content_url: %s %s",
+          $exec_state->{content_url},
+            $error ? "\nCaught exception: $error" : ""
+        );
+
+        return $result-> push_error( { application_error => $error_msg } );
+    };
+
+    my $extract_location =
+      join( '/', $exec_state->{provisioned_location}, $exec_state->{basename} );
+    my $ae =
+      Archive::Extract->new( archive => $exec_state->{downloaded_blob} );
+    unless ($ae) {
+        return $handle_extraction_error->();
+    }
+    unless ( $ae->extract( to => $extract_location ) ) {
+        return $handle_extraction_error->( $ae->error );
+    }
+
+    return $result->push_item({provisioned_location => $exec_state->{provisioned_location}});
+}
+
+sub get_crc {
+    my ($file) = @_;
+    open( my $fh, '<', $file ) || die;
+    binmode $fh;
+    my $crc = crc32(*$fh);
+    close($fh);
+
+    return $crc;
 }
 
 1;

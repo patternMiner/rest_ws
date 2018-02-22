@@ -32,7 +32,7 @@ sub create_test_app_context {
     return $ctx;
 }
 
-sub create_test_url {
+sub create_test_file {
     my ( $dir, $content ) = @_;
 
     my @files = ( "awesome/bar", "awesome/foo" );
@@ -42,7 +42,7 @@ sub create_test_url {
     }
     $tar->write( "$dir/files.tgz", COMPRESS_GZIP );
 
-    return "file:/$dir/files.tgz";
+    return "$dir/files.tgz";
 }
 
 sub load_test_data {

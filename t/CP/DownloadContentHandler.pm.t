@@ -1,11 +1,10 @@
 use strict;
 use warnings;
-use CP::ContentPipeline;
-use CP::Download;
-use CP::Extract;
+use CP::DownloadContentHandler;
 use File::Slurp qw(read_file);
 use File::Temp qw(tempdir);
 use JSON;
+use Result;
 use Test::Mojo;
 use Test2::V0;
 use Test2::Plugin::BailOnFail;
@@ -15,8 +14,10 @@ use UnitTesting::Harness;
 my $config        = UnitTesting::Harness::create_test_config();
 my $test_data_dir = tempdir( CLEANUP => 1 );
 my $file_content  = "Hello, World!";
-my $url =
-  UnitTesting::Harness::create_test_url( $test_data_dir, $file_content );
+my $content_blob =
+  UnitTesting::Harness::create_test_file( $test_data_dir, $file_content );
+my $crc = CP::DownloadContentHandler::get_crc($content_blob);
+my $content_url = "file:/$content_blob";
 my $allocated_location = join( '/', $config->{storage_pool}, 'a' );
 my $test_data = _get_test_data();
 
@@ -41,10 +42,14 @@ sub _verify_download_content_handler {
       'CP::StorageManager' => (
         override => [
           new => sub { return bless {}, 'CP::StorageManager' },
-          get_storage  => sub { return shift(@locations); },
+          get_storage  => sub {
+              return
+                Result->new()->push_item({ provisioned_location => shift(@locations) });
+          },
           free_storage => sub {
-              my ( $self, $location );
-              unshift( @locations, $location );
+              my ( $self, $provisioned_location );
+              unshift( @locations, $provisioned_location );
+              return Result->new();
           }
         ]
       )
@@ -61,7 +66,7 @@ sub _get_test_data {
   name: 'Test content pipeline, with valid parameters'
   params:
     request_params:
-        POST: "/cp/v0/content?url=$url&size=1M"
+        POST: "/cp/v0/content?crc=$crc&content_url=$content_url&max_size=1M"
     expect_extracted_files:
         -
             "awesome/foo"
@@ -70,27 +75,27 @@ sub _get_test_data {
     expected_result:
         items:
             -
-                allocated_location: "$allocated_location"
+                provisioned_location: "$allocated_location"
         errors: []
 -
   name: 'Test content pipeline, with invalid parameters'
   params:
     request_params:
-        POST: "/cp/v0/content?url=file://home/blah/blah.tar&size=1M"
+        POST: "/cp/v0/content?crc=$crc&content_url=file://home/blah/blah.tar&max_size=1M"
     expected_result:
         errors:
             -
-                application_error: "Failed to download the url: file://home/blah/blah.tar."
+                application_error: "Failed to download the content_url: file://home/blah/blah.tar"
         items: []
 -
   name: 'Test content pipeline, with missing parameters'
   params:
     request_params:
-        POST: "/cp/v0/content?size=1M"
+        POST: "/cp/v0/content?crc=$crc&max_size=1M"
     expected_result:
         errors:
             -
-                missing_parameter: "url is a required parameter."
+                missing_parameter: "content_url is a required parameter."
         items: []
 TEST
 }
