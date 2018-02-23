@@ -6,7 +6,7 @@ use warnings;
 use AppContextBuilder;
 use Archive::Tar;
 use Array::Compare;
-use Log::Any qw($log);
+use Log::Any qw( $log );
 use RestWs;
 use YAML::XS;
 

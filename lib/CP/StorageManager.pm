@@ -3,8 +3,8 @@ package CP::StorageManager;
 use strict;
 use warnings;
 
-use File::Path qw(remove_tree);
-use File::Temp qw(tempdir);
+use File::Path qw( remove_tree );
+use File::Temp qw( tempdir );
 use Moo;
 use Result;
 

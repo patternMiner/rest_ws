@@ -3,8 +3,8 @@ package CP::DownloadContentHandler;
 
 use Archive::Extract;
 use CP::Types qw( MaxSize );
-use File::Temp qw(tempdir);
-use Log::Any qw($log);
+use File::Temp qw( tempdir );
+use Log::Any qw( $log );
 use LWP::Simple;
 use Moo;
 use Result;

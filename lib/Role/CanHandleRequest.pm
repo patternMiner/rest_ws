@@ -35,7 +35,7 @@ package Role::CanHandleRequest;
 
 use strict;
 use warnings;
-use Log::Any qw($log);
+use Log::Any qw( $log );
 use Moo::Role;
 use Result;
 use Try::Tiny;

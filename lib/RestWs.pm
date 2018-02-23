@@ -2,6 +2,7 @@ package RestWs;
 
 use AppContextBuilder;
 use CP::DownloadContentHandler;
+use Log::Any qw ( $log );
 use Mojo::Base 'Mojolicious';
 use WelcomeRequestHandler;
 use YAML::XS;

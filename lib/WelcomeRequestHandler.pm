@@ -1,10 +1,7 @@
 package WelcomeRequestHandler;
 
-use strict;
-use warnings;
-
+use Log::Any ( $log );
 use Moo;
-use Params::ValidationCompiler qw(validation_for);
 use RestWs;
 use Result;
 use Types::Standard qw( Str );
