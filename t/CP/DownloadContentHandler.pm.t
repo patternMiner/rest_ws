@@ -4,6 +4,8 @@ use CP::DownloadContentHandler;
 use File::Slurp qw(read_file);
 use File::Temp qw(tempdir);
 use JSON;
+use Log::Any qw($log);
+use Log::Any::Adapter qw(TAP);
 use Result;
 use Test::Mojo;
 use Test2::V0;
@@ -57,7 +59,14 @@ sub _verify_download_content_handler {
     my $t = Test::Mojo->new( 'RestWs' => $config );
     my $tx = $t->ua->build_tx( %{ $params->{request_params} } );
 
-    $t->request_ok($tx)->status_is(200)->json_is( $params->{expected_result} );
+
+    $t->request_ok($tx)->status_is(200);
+
+    my $got_result  = Result->new(_result => $tx->res->json);
+    my $expected_result  = Result->new(_result => $params->{expected_result});
+
+    ok (UnitTesting::Harness::results_equal($got_result, $expected_result), 'Result looks good.');
+
 }
 
 sub _get_test_data {
@@ -94,6 +103,18 @@ sub _get_test_data {
         POST: "/cp/v0/content?crc=$crc&max_size=1M"
     expected_result:
         errors:
+            -
+                missing_parameter: "content_url is a required parameter."
+        items: []
+-
+  name: 'Test content pipeline, with missing and invalid parameters'
+  params:
+    request_params:
+        POST: "/cp/v0/content?crc=$crc&max_size=2Q"
+    expected_result:
+        errors:
+            -
+                invalid_parameter: "2Q is not a valid max_size."
             -
                 missing_parameter: "content_url is a required parameter."
         items: []

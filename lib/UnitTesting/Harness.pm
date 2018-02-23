@@ -5,7 +5,8 @@ use warnings;
 
 use AppContextBuilder;
 use Archive::Tar;
-use Log::Any::Adapter ('Stderr');
+use Array::Compare;
+use Log::Any qw($log);
 use RestWs;
 use YAML::XS;
 
@@ -51,6 +52,38 @@ sub load_test_data {
     my $test_data = YAML::XS::Load($test_data_yml);
 
     return $test_data;
+}
+
+# returns true if both the Result objects are equal.
+sub results_equal {
+    my ($this, $that) = @_;
+
+    my $this_payload = $this->get_payload();
+    my $that_payload = $that->get_payload();
+
+    return
+      _arrayrefs_equal($this_payload->{items}, $that_payload->{items}) &&
+      _arrayrefs_equal($this_payload->{errors}, $that_payload->{errors});
+
+}
+
+# returns true if both arrays have same elements, albeit in different order. false, otherwise.
+sub _arrayrefs_equal {
+    my ($this, $that) = @_;
+
+    unless (@{$this} || @{$that}) {
+        return 1;
+    }
+
+    my @sorted_this = (sort { $a <=> $b } @{$this});
+    my @sorted_that = (sort { $a <=> $b } @{$that});
+
+    my $comp = Array::Compare->new(DefFull => 1);
+
+    my $comp_result = $comp->compare(\@sorted_this, \@sorted_that);
+
+    return $comp_result;
+
 }
 
 1;
