@@ -13,7 +13,7 @@ sub create_test_config {
     return YAML::XS::Load(<<END);
 # Your application's name
 service_name: 'REST Web Service'
-
+environment: 'test'
 storage_pool: '/tmp/RestWs/storage_pool'
 END
 }

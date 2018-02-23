@@ -1,8 +1,11 @@
 package RestWs;
 
+use Log::Log4perl;
+use Log::Any::Adapter;
+use Log::Any qw ( $log );
+
 use AppContextBuilder;
 use CP::DownloadContentHandler;
-use Log::Any qw ( $log );
 use Mojo::Base 'Mojolicious';
 use WelcomeRequestHandler;
 use YAML::XS;
@@ -14,6 +17,11 @@ sub startup {
     my ($app) = @_;
 
     my $config = _get_config($app);
+    my $env = $config->{environment};
+
+    Log::Log4perl::init( "etc/$env/log4perl.conf" );
+    Log::Any::Adapter->set('Log::Log4perl');
+
     my $ctx    = AppContextBuilder::build(
         service_name => $config->{service_name},
         version      => $VERSION,

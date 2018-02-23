@@ -1,4 +1,6 @@
 # Your application's name
 service_name: 'REST Web Service'
 
+environment: 'development'
+
 storage_pool: '/tmp/RestWs/storage_pool'
