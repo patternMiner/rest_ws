@@ -55,8 +55,8 @@ sub load_test_data {
 sub results_equal {
     my ($this, $that) = @_;
 
-    my $this_payload = $this->get_payload();
-    my $that_payload = $that->get_payload();
+    my $this_payload = $this->to_hashref();
+    my $that_payload = $that->to_hashref();
 
     return
       _arrayrefs_equal($this_payload->{items}, $that_payload->{items}) &&

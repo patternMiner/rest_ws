@@ -120,7 +120,7 @@ sub is_error {
     return ( @{ $self->_result->{errors} } );
 }
 
-=head2 C<get_payload>
+=head2 C<to_hashref>
 
 Returns the hashref that constitutes this result.
 
@@ -134,7 +134,7 @@ The _result attribute, that constitutes the client consumable result hashref.
 
 =cut
 
-sub get_payload {
+sub to_hashref {
     my ($self) = @_;
 
     return $self->_result;

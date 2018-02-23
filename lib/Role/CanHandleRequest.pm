@@ -66,10 +66,10 @@ around 'handle_request' => sub {
 
     # log the result
     $log->infof( "RequestHandler execution state: %s", $exec_state );
-    $log->infof( "RequestHandler result: %s", $result->get_payload() );
+    $log->infof( "RequestHandler result: %s", $result->to_hashref() );
 
     # return the result
-    return $result->get_payload();
+    return $result->to_hashref();
 };
 
 sub dispatch {
@@ -141,8 +141,9 @@ sub validate_all_parameters {
                 $validated_params->{$p_name} = $p_type->assert_return($p_value);
             }
         } else {
-            if ($v_spec->{default}) {
-                $validated_params->{$p_name} = $v_spec->{default}->();
+            my $default = $v_spec->{default};
+            if ($default) {
+                $validated_params->{$p_name} = (ref($default) eq 'CODE') ? $default->() : $default;
             }
             unless ($v_spec->{optional}) {
                 $result->push_error({missing_parameter => "$p_name is a required parameter."});
