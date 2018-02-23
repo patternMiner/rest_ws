@@ -38,6 +38,7 @@ request handlers, and the result does not interpret them in any way.
 
 package Result;
 
+use Array::Compare;
 use Moo;
 
 has _result => ( is => 'ro', default => sub { { errors => [], items => [] } } );
@@ -197,6 +198,7 @@ sub is_equal {
 sub _arrayrefs_equal {
     my ($this, $that) = @_;
 
+    # if both the arrays are empty, return true.
     unless (@{$this} || @{$that}) {
         return 1;
     }
