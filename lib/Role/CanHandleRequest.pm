@@ -84,6 +84,46 @@ sub dispatch {
     };
 }
 
+=head2 C<validate_all_parameters>
+
+Validates all of the given named parameter values, according to a given validation spec.
+
+=head3 PARAMETERS
+
+=over
+
+=item C<param_validation_spec>
+
+A hashref of named parameter specs, each containing a 'type' attribute that indicates a
+Type::Tiny type, and an optional 'default' attribute which is a value providing coderef.
+
+  e.g:
+    {
+        content_url => { type => Str },
+        max_size    => { type => MaxSize },
+        crc         => { type => Str }
+    }
+
+
+=item C<params>
+
+Request parameters as a hash of parameter_name keys mapped to corresponding parameter_values.
+
+=back
+
+=head3 RETURN
+
+Returns a Result object, containing the parameter validation errors, or the validated
+paremeter hashref.
+
+Iterates through each parameter spec and validates its value from the named parameter values,
+collects any missing parameter and/or invalid parameter values as errors, and assigns default
+values where appropriate.  When there are no errors, returns the validated parameter hashref
+as an item of the Result object.  Similarly, errors are added to the returned Result
+object.
+
+=cut
+
 sub validate_all_parameters {
     my ($self, $params_validation_spec, $params) = @_;
 
