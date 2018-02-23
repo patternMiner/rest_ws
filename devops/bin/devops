@@ -1,0 +1,20 @@
+#!/usr/bin/env perl
+
+=head1 USAGE
+
+./devops <command> <options> <args>
+
+=head1 DESCRIPTION
+
+This tool provides user a command to invoke devops subcommands of ResyWs.
+
+=cut
+
+use strict;
+use warnings;
+use FindBin ();
+use lib "$FindBin::Bin/../../lib";
+use DevOps;
+
+DevOps->run;
+
