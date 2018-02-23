@@ -1,0 +1,17 @@
+Makefile.PL
+MANIFEST
+
+lib/Role/CanHandleRequest.pm
+lib/AppContextBuilder.pm
+lib/Result.pm
+lib/RestWs.pm
+lib/AppContext.pm
+lib/WelcomeRequestHandler.pm
+lib/CP/DownloadContentHandler.pm
+lib/CP/StorageManager.pm
+lib/CP/Types.pm
+lib/UnitTesting/Harness.pm
+
+t/CP/DownloadContentHandler.pm.t
+t/welcome.t
+

@@ -6,6 +6,8 @@ use Mojo::Base 'Mojolicious';
 use WelcomeRequestHandler;
 use YAML::XS;
 
+our $VERSION = '0.0.0';
+
 # Defines the routes and the request dispatchers.
 sub startup {
     my ($app) = @_;
@@ -13,7 +15,7 @@ sub startup {
     my $config = _get_config($app);
     my $ctx    = AppContextBuilder::build(
         service_name => $config->{service_name},
-        version      => $config->{version},
+        version      => $VERSION,
         storage_pool => $config->{storage_pool}
     );
 
