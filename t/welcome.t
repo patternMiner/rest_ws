@@ -2,6 +2,7 @@ use strict;
 use warnings;
 use UnitTesting::Harness;
 use JSON;
+use Log::Any::Adapter qw(TAP);
 use Test::Mojo;
 use Test2::V0;
 use Test2::Plugin::BailOnFail;

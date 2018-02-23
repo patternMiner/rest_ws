@@ -15,9 +15,6 @@ sub create_test_config {
 # Your application's name
 service_name: 'REST Web Service'
 
-# version of this release
-version: '0.0.0'
-
 storage_pool: '/tmp/RestWs/storage_pool'
 END
 }
@@ -27,7 +24,7 @@ sub create_test_app_context {
     my $ctx = AppContextBuilder::build(
         service_name => 'REST Web Service',
         storage_pool => '/tmp/RestWs/storage_pool',
-        version      => '0.0.0',
+        version      => $RestWs::VERSION,
     );
 
     return $ctx;

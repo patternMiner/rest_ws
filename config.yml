@@ -1,0 +1,4 @@
+# Your application's name
+service_name: 'REST Web Service'
+
+storage_pool: '/tmp/RestWs/storage_pool'

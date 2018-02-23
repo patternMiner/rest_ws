@@ -5,6 +5,7 @@ use warnings;
 
 use Moo;
 use Params::ValidationCompiler qw(validation_for);
+use RestWs;
 use Result;
 use Types::Standard qw( Str );
 
@@ -19,7 +20,7 @@ sub handle_request {
       Result->new()
         ->push_item({
         'service_name' => $ctx->service_name,
-        'version'      => $ctx->version
+        'version'      => $RestWs::VERSION
       });
 }
 

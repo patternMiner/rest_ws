@@ -11,10 +11,6 @@ use Types::Standard qw( Object Str );
 
 my $param_validator = validation_for(
     params => {
-        log => {
-            type    => Object,
-            default => sub { Log::Any->get_logger }
-        },
         storage_pool => { type => Str },
         service_name => { type => Str },
         version      => { type => Str },
