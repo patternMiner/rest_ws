@@ -58,20 +58,10 @@ around 'handle_request' => sub {
     }
     catch {
         $log->infof( "RequestHandler: Caught exception: %s", $_ );
-        my ($missing_parameter) = $_ =~ m/MissingParameter:([^:]*):/;
-        my ($invalid_parameter) = $_ =~ m/InvalidParameter:([^:]*):/;
-        if ($missing_parameter) {
-            $result->push_error( { missing_parameter => $missing_parameter } );
-        }
-        elsif ($invalid_parameter) {
-            $result->push_error( { invalid_parameter => $invalid_parameter } );
-        }
-        else {
-            my $error = "$_";
-            $error =~ s/ at .*$//;
-            chomp $error;
-            $result->push_error( { application_error => $error} );
-        }
+        my $error = "$_";
+        $error =~ s/ at .*$//;
+        chomp $error;
+        $result->push_error( { application_error => $error} );
     };
 
     # log the result
