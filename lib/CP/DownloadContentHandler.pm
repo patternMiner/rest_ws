@@ -7,7 +7,6 @@ use File::Temp qw(tempdir);
 use Log::Any qw($log);
 use LWP::Simple;
 use Moo;
-use Params::ValidationCompiler qw(validation_for);
 use Result;
 use String::CRC32;
 use Type::Tiny;
@@ -15,43 +14,25 @@ use Types::Standard qw( Str );
 
 with 'Role::CanHandleRequest';
 
-# Validates the parameters. When a required parameter is not specified, throws a formatted
-# message of the form: "MissngParameter:<parameter_name> is a required parameter.:"
-my $param_validator = validation_for(
-  params => {
-    content_url => {
-      type    => Str,
-      default => sub {
-          die "MissingParameter:content_url is a required parameter.:";
-      }
-    },
-    max_size => {
-      type    => MaxSize,
-      default => sub {
-          die "MissingParameter:max_size is a required parameter.:";
-      }
-    },
-    crc => {
-      type    => Str,
-      default => sub {
-          die "MissingParameter:crc is a required parameter.:";
-      }
-    }
-  }
-);
+my $params_validation_spec = {
+  content_url => { type => Str },
+  max_size    => { type => MaxSize },
+  crc         => { type => Str }
+};
 
 sub handle_request {
-    my ( $self, $exec_state, @rest ) = @_;
+    my ( $self, $exec_state, $params ) = @_;
 
-    my %validated_params = $param_validator->(@rest);
+    my $result = $self->validate_all_parameters($params_validation_spec, $params);
+    return $result if ($result->is_error());
+
+    my $validated_params = $result->get_payload()->{items}->[0];
     my $storage_manager = $self->ctx->storage_manager;
-    my $result =
-      $storage_manager->get_storage( $validated_params{max_size} );
-
+    $result = $storage_manager->get_storage( $validated_params->{max_size} );
     return $result if ($result->is_error());
 
     ## Setup execution state.
-    $exec_state->{$_} = $validated_params{$_} for keys %validated_params;
+    $exec_state->{$_} = $validated_params->{$_} for keys %{$validated_params};
     $exec_state->{provisioned_location} =
       $result->get_payload()->{items}->[0]->{provisioned_location};
     die "Directory doesn't exist" unless (-d $exec_state->{provisioned_location});
