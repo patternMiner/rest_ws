@@ -46,6 +46,33 @@ has _result => ( is => 'ro', default => sub { { errors => [], items => [] } } );
 
 =cut
 
+
+=head2 C<from_hashref>
+
+Constructs a new Result object from a given hashref.
+
+=head3 PARAMETERS
+
+=over
+
+=item C<hashref>
+
+The hashref that will be the _result attribute of the new Result object.
+
+=back
+
+=head3 RETURN
+
+A new Result object, having the given hashref as the _result attribute.
+
+=cut
+
+sub from_hashref {
+      my ($class, $hashref) = @_;
+
+      return Result->new(_result => $hashref);
+}
+
 =head2 C<push_item>
 
 Adds the given item to the list of items.
@@ -140,5 +167,49 @@ sub to_hashref {
     return $self->_result;
 }
 
+=head2 C<is_equal>
+
+Determines whether the given other Result object is equal to self.
+
+=head3 PARAMETERS
+
+The other Result object.
+
+=head3 RETURN
+
+True if the other object is equal to self, at the hashref level. False, otherwise.
+
+=cut
+
+sub is_equal {
+    my ($self, $other) = @_;
+
+    my $self_hashref = $self->to_hashref();
+    my $other_hashref = $other->to_hashref();
+
+    return
+      _arrayrefs_equal($self_hashref->{items}, $other_hashref->{items}) &&
+      _arrayrefs_equal($self_hashref->{errors}, $other_hashref->{errors});
+
+}
+
+# returns true if both arrays have same elements, albeit in different order. false, otherwise.
+sub _arrayrefs_equal {
+    my ($this, $that) = @_;
+
+    unless (@{$this} || @{$that}) {
+        return 1;
+    }
+
+    my @sorted_this = (sort { $a <=> $b } @{$this});
+    my @sorted_that = (sort { $a <=> $b } @{$that});
+
+    my $comp = Array::Compare->new(DefFull => 1);
+
+    my $comp_result = $comp->compare(\@sorted_this, \@sorted_that);
+
+    return $comp_result;
+
+}
 
 1;

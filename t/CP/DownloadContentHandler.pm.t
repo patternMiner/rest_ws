@@ -62,10 +62,10 @@ sub _verify_download_content_handler {
 
     $t->request_ok($tx)->status_is(200);
 
-    my $got_result  = Result->new(_result => $tx->res->json);
-    my $expected_result  = Result->new(_result => $params->{expected_result});
+    my $got_result  = Result->from_hashref($tx->res->json);
+    my $expected_result  = Result->from_hashref($params->{expected_result});
 
-    ok (UnitTesting::Harness::results_equal($got_result, $expected_result), 'Result looks good.');
+    ok ($got_result->is_equal($expected_result), 'Result looks good.');
 
 }
 

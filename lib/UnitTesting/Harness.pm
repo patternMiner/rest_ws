@@ -51,36 +51,4 @@ sub load_test_data {
     return $test_data;
 }
 
-# returns true if both the Result objects are equal.
-sub results_equal {
-    my ($this, $that) = @_;
-
-    my $this_payload = $this->to_hashref();
-    my $that_payload = $that->to_hashref();
-
-    return
-      _arrayrefs_equal($this_payload->{items}, $that_payload->{items}) &&
-      _arrayrefs_equal($this_payload->{errors}, $that_payload->{errors});
-
-}
-
-# returns true if both arrays have same elements, albeit in different order. false, otherwise.
-sub _arrayrefs_equal {
-    my ($this, $that) = @_;
-
-    unless (@{$this} || @{$that}) {
-        return 1;
-    }
-
-    my @sorted_this = (sort { $a <=> $b } @{$this});
-    my @sorted_that = (sort { $a <=> $b } @{$that});
-
-    my $comp = Array::Compare->new(DefFull => 1);
-
-    my $comp_result = $comp->compare(\@sorted_this, \@sorted_that);
-
-    return $comp_result;
-
-}
-
 1;
