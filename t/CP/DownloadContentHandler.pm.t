@@ -62,10 +62,7 @@ sub _verify_download_content_handler {
 
     $t->request_ok($tx)->status_is(200);
 
-    my $got_result  = Result->from_hashref($tx->res->json);
-    my $expected_result  = Result->from_hashref($params->{expected_result});
-
-    ok ($got_result->is_equal($expected_result), 'Result looks good.');
+    is ($tx->res->json, $params->{expected_result}, 'Result looks good.');
 
 }
 
@@ -114,9 +111,9 @@ sub _get_test_data {
     expected_result:
         errors:
             -
-                invalid_parameter: "2Q is not a valid max_size."
-            -
                 missing_parameter: "content_url is a required parameter."
+            -
+                invalid_parameter: "2Q is not a valid max_size."
         items: []
 TEST
 }

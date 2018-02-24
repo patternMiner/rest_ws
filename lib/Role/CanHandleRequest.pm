@@ -130,9 +130,18 @@ sub validate_all_parameters {
     my $validated_params = {};
     my $result = Result->new();
 
-    while(my($p_name, $v_spec) = each %{$params_validation_spec}) {
+    foreach my $p_name (sort (keys %{$params_validation_spec})) {
+        my $v_spec = $params_validation_spec->{$p_name};
         my $p_type = $v_spec->{type};
-        my $p_value = $params->{$p_name};
+        my $p_value = $params{$p_name};
+        # if no value is present, take the default value for validation.
+        unless ($p_value) {
+            if ($v_spec->{default}) {
+                my $default = $v_spec->{default};
+                $p_value = (ref ($default) eq 'CODE') ? $default->() : $default;
+            }
+        }
+        # validate the value, if present.
         if ($p_value) {
             my $message = $p_type->validate($p_value);
             if ($message) {
@@ -141,10 +150,7 @@ sub validate_all_parameters {
                 $validated_params->{$p_name} = $p_type->assert_return($p_value);
             }
         } else {
-            my $default = $v_spec->{default};
-            if ($default) {
-                $validated_params->{$p_name} = (ref($default) eq 'CODE') ? $default->() : $default;
-            }
+            # unless the parameter is optional, consider its missing value as an error.
             unless ($v_spec->{optional}) {
                 $result->push_error({missing_parameter => "$p_name is a required parameter."});
             }
