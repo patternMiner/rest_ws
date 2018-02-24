@@ -32,7 +32,7 @@ around 'execute' => sub {
     };
 
     if ($result->is_error()) {
-        $log->infof( "Command failed:\n\t %s\n", $result->get_payload()->{errors} );
+        $log->infof( "Command failed:\n\t %s\n", $result->to_hashref()->{errors} );
     } else {
         $log->infof( "Command successful.\n");
     }
