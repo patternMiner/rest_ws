@@ -15,7 +15,6 @@ use strict;
 use warnings;
 use Const::Fast;
 use Result;
-use IPC::Run qw( run );
 use Params::ValidationCompiler qw( validation_for );
 use Log::Any qw( $log );
 use Try::Tiny;
@@ -72,7 +71,7 @@ sub perform {
                 return $result;
             }
 
-            my $ws_daemon_cmd = sprintf( "%s daemon --home %s -l http://*:%s",
+            my $ws_daemon_cmd = sprintf( "%s daemon --home %s -l http://*:%s &",
                 $service_binary, $deployment, $service_port );
             !system($ws_daemon_cmd)
               || die "Failed to start the deployment: $ws_daemon_cmd\n";

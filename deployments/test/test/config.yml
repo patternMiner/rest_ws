@@ -1,0 +1,15 @@
+service_name: "rest_ws"
+
+environment: 'production'
+
+appname: "rest_ws"
+
+service_binary: "/Users/jbisa/rest_ws/bin/rest_ws"
+
+service_port: "3000"
+
+deployment_type: "test"
+
+deployment_id: "test"
+
+storage_pool: "/Users/jbisa/storage_pool"
