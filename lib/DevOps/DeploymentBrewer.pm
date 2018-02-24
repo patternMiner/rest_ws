@@ -28,7 +28,7 @@ const my $SERVICE_PORT    => 3000;
 my $param_validator = validation_for(
     params => {
         deployment_root => { type => Str, default => $DEPLOYMENT_ROOT },
-        deployment_type => { type => Str, default => 'uat' },
+        deployment_type => { type => Str, default => 'test' },
         deployment_id   => { type => Str, default => 'test' },
         storage_pool    => { type => Any, default => sub {
                 die "storage_pool is a required parameter";
