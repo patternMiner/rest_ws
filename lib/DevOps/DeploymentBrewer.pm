@@ -21,7 +21,7 @@ use Try::Tiny;
 use Types::Standard qw( Any Str );
 use YAML::XS;
 
-const my $DEPLOYMENT_ROOT => '../deployments';
+const my $DEPLOYMENT_ROOT => 'deployments';
 const my $SERVICE_NAME    => 'rest_ws';
 const my $SERVICE_PORT    => 3000;
 
