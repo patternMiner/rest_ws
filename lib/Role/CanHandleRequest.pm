@@ -133,7 +133,7 @@ sub validate_all_parameters {
     foreach my $p_name (sort (keys %{$params_validation_spec})) {
         my $v_spec = $params_validation_spec->{$p_name};
         my $p_type = $v_spec->{type};
-        my $p_value = $params{$p_name};
+        my $p_value = $params->{$p_name};
         # if no value is present, take the default value for validation.
         unless ($p_value) {
             if ($v_spec->{default}) {
