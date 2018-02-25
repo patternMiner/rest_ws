@@ -1,7 +1,7 @@
+#!/usr/bin/perl
 use strict;
 use warnings;
 use UnitTesting::Harness;
-use JSON;
 use Log::Any qw( $log );
 use Log::Any::Adapter qw( TAP );
 use Test::Mojo;

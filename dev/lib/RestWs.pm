@@ -34,6 +34,8 @@ sub startup {
     $r->get( '/' => WelcomeRequestHandler->new( ctx => $ctx )->dispatch );
     $r->post( '/cp/v0/content' =>
           CP::DownloadContentHandler->new( ctx => $ctx )->dispatch );
+    $r->delete( '/cp/v0/content' =>
+        CP::StorageDeallocateHandler->new( ctx => $ctx )->dispatch );
 }
 
 sub _get_config {

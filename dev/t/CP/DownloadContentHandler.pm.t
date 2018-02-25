@@ -1,9 +1,9 @@
+#!/usr/bin/perl
 use strict;
 use warnings;
 use CP::DownloadContentHandler;
 use File::Slurp qw( read_file );
 use File::Temp qw( tempdir );
-use JSON;
 use Log::Any qw( $log );
 use Log::Any::Adapter qw( TAP );
 use Result;
