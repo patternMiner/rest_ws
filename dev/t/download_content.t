@@ -34,21 +34,10 @@ done_testing();
 sub _verify_download_content_handler {
     my ($params) = @_;
 
-    my $mock_sm = mock(
-      'CP::StorageManager' => (
-        override => [
-          new => sub { return bless {}, 'CP::StorageManager' },
-          get_storage  => sub {
-              return
-                Result->new()->push_item({ provisioned_location => $allocated_location });
-          },
-          free_storage => sub {
-              my ( $self, $provisioned_location );
-              return Result->new();
-          }
-        ]
-      )
-    );
+    my $mock_sm =
+        UnitTesting::MockSM::create_mock_storage_manager(
+            $params->{allocation_result} );
+
     my $t = Test::Mojo->new( 'RestWs' => $config );
     my $tx = $t->ua->build_tx( %{ $params->{request_params} } );
 
