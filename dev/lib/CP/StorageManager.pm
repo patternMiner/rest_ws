@@ -5,6 +5,7 @@ use warnings;
 
 use File::Path qw( remove_tree );
 use File::Temp qw( tempdir );
+use Log::Any qw( $log );
 use Moo;
 use Result;
 
@@ -22,9 +23,17 @@ sub get_storage {
 sub free_storage {
     my ( $self, $location ) = @_;
 
-    remove_tree($location);
+    my $result = Result->new();
 
-    return Result->new();
+    remove_tree( $location, { result => \my $deleted } );
+
+    if (@{$deleted}) {
+        $result->push_item({deleted => $deleted});
+    } else {
+        $result->push_error({delete_error => "Failed to delete $location."});
+    }
+
+    return $result;
 }
 
 1;

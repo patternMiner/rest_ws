@@ -6,6 +6,7 @@ use Log::Any qw ( $log );
 
 use AppContextBuilder;
 use CP::DownloadContentHandler;
+use CP::StorageDeallocateHandler;
 use Mojo::Base 'Mojolicious';
 use WelcomeRequestHandler;
 use YAML::XS;
