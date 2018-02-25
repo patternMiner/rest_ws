@@ -6,6 +6,7 @@ use File::Slurp qw(read_file);
 use File::Temp qw(tempdir);
 use CP::DownloadContentHandler;
 use UnitTesting::Harness;
+use UnitTesting::MockSM;
 use Log::Any::Adapter qw(TAP);
 use Test2::V0;
 use Test2::Plugin::BailOnFail;
@@ -38,7 +39,7 @@ sub _verify_download_content_handler {
         $params->{allocation_result} );
 
     my $got_result =
-        $download_content_handler->handle_request( $exec_state, %{ $params->{request_params} } );
+        $download_content_handler->handle_request( $exec_state, $params->{request_params} );
 
     is ($got_result, $params->{expected_result}, 'Result looks correct.');
 
@@ -75,7 +76,7 @@ sub get_test_data {
     request_params:
         content_url: "$content_url"
         crc: "$crc"
-        package_size: '1M'
+        max_size: '1M'
     expect_download_to_succeed: 1
     expect_extract_to_succeed: 1
     expect_extracted_files:
@@ -86,7 +87,7 @@ sub get_test_data {
     expected_result:
         items:
             -
-                mods_image_id: "$provisioned_location"
+                provisioned_location: "$provisioned_location"
         errors: []
 -
   name: 'Test content pipeline, with valid parameters, but invalid storage'
@@ -96,7 +97,7 @@ sub get_test_data {
     request_params:
         content_url: "$content_url"
         crc: "$crc"
-        package_size: '1M'
+        max_size: '1M'
     expect_download_to_succeed: 1
     expect_extract_to_succeed: 0
     expected_result:
@@ -112,28 +113,28 @@ sub get_test_data {
     request_params:
         content_url: "file://home/blah/blah.tar"
         crc: "$crc"
-        package_size: '1M'
+        max_size: '1M'
     expected_result:
         errors:
             -
                 application_error: "Failed to download the content_url: file://home/blah/blah.tar"
         items: []
 -
-  name: 'Test content pipeline, with invalid package_size'
+  name: 'Test content pipeline, with invalid max_size'
   params:
     allocation_result:
         provisioned_location: "$provisioned_location"
     request_params:
         content_url: "file://home/blah/blah.tar"
         crc: "$crc"
-        package_size: '5Y'
+        max_size: '5Y'
     expected_result:
         errors:
             -
-                invalid_parameter: "5Y is not a valid package_size."
+                invalid_parameter: "5Y is not a valid max_size."
         items: []
 -
-  name: 'Test content pipeline, with missing package_size'
+  name: 'Test content pipeline, with missing max_size'
   params:
     allocation_result:
         provisioned_location: "$provisioned_location"
@@ -143,7 +144,7 @@ sub get_test_data {
     expected_result:
         errors:
             -
-                missing_parameter: "package_size is a required parameter."
+                missing_parameter: "max_size is a required parameter."
         items: []
 -
   name: 'Test content pipeline, with missing crc'
@@ -152,26 +153,26 @@ sub get_test_data {
         provisioned_location: "$provisioned_location"
     request_params:
         content_url: "$content_url"
-        package_size: '1M'
+        max_size: '1M'
     expected_result:
         errors:
             -
                 missing_parameter: "crc is a required parameter."
         items: []
 -
-  name: 'Test content pipeline, with missing crc and invalid package_size'
+  name: 'Test content pipeline, with missing crc and invalid max_size'
   params:
     allocation_result:
         provisioned_location: "$provisioned_location"
     request_params:
         content_url: "file://home/blah/blah.tar"
-        package_size: '9U'
+        max_size: '9U'
     expected_result:
         errors:
             -
                 missing_parameter: "crc is a required parameter."
             -
-                invalid_parameter: "9U is not a valid package_size."
+                invalid_parameter: "9U is not a valid max_size."
         items: []
 TEST
 }

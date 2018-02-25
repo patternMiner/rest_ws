@@ -17,9 +17,9 @@ sub create_mock_storage_manager {
                 get_storage =>
                   sub {
                       return
-                          HSMB::Result->new()->push_item($allocation_result);
+                          Result->new()->push_item($allocation_result);
                   },
-                free_storage => sub { return new HSMB::Result->new() }
+                free_storage => sub { return new Result->new() }
             ]
         )
     );
