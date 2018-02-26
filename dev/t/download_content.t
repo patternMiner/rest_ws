@@ -12,6 +12,7 @@ use Test2::V0;
 use Test2::Plugin::BailOnFail;
 use Type::Tiny;
 use UnitTesting::Harness;
+use UnitTesting::MockSM;
 
 my $config        = UnitTesting::Harness::create_test_config();
 my $test_data_dir = tempdir( CLEANUP => 1 );
@@ -55,6 +56,8 @@ sub _get_test_data {
   params:
     request_params:
         POST: "/cp/v0/content?crc=$crc&content_url=$content_url&max_size=1M"
+    allocation_result:
+        provisioned_location: "$allocated_location"
     expect_extracted_files:
         -
             "awesome/foo"
@@ -70,6 +73,8 @@ sub _get_test_data {
   params:
     request_params:
         POST: "/cp/v0/content?crc=$crc&content_url=file://home/blah/blah.tar&max_size=1M"
+    allocation_result:
+        provisioned_location: "$allocated_location"
     expected_result:
         errors:
             -
@@ -80,6 +85,8 @@ sub _get_test_data {
   params:
     request_params:
         POST: "/cp/v0/content?crc=$crc&max_size=1M"
+    allocation_result:
+        provisioned_location: "$allocated_location"
     expected_result:
         errors:
             -
@@ -90,6 +97,8 @@ sub _get_test_data {
   params:
     request_params:
         POST: "/cp/v0/content?crc=$crc&max_size=2Q"
+    allocation_result:
+        provisioned_location: "$allocated_location"
     expected_result:
         errors:
             -
