@@ -24,7 +24,7 @@ use Types::Standard qw ( Str );
 
 declare MaxSize,
   as Str,
-    where { $_ =~ m/^\d+[BKMGT]{1}$/ }
+    where { $_ =~ m/^\d+[BKMGT]{1}$/i }
     message {
             return "$_ is not a valid max_size.";
     };

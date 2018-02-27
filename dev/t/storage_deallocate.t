@@ -6,6 +6,7 @@ use File::Temp qw(tempdir);
 use UnitTesting::Harness;
 use Log::Any::Adapter qw(TAP);
 use Log::Any qw($log);
+use StatusCodes;
 use Test::Mojo;
 use Test2::V0;
 use Test2::Plugin::BailOnFail;
@@ -28,7 +29,7 @@ sub _verify_delete_storage_api {
     my $t = Test::Mojo->new( 'RestWs' => $config );
     my $tx = $t->ua->build_tx( %{ $params->{request_params} } );
 
-    $t->request_ok($tx)->status_is( $params->{response_status}, 'Response status looks good.' );
+    $t->request_ok($tx)->status_is( $params->{expected_status}, 'Response status looks good.' );
 
     is ($tx->res->json, $params->{expected_result}, 'Result looks good.');
 }
@@ -40,21 +41,15 @@ sub _get_test_data {
   params:
       request_params:
         DELETE: "/cp/v0/content?provisioned_location=$provisioned_location"
-      response_status: 200
+      expected_status: "$StatusCodes::OK_NO_CONTENT"
       expected_result:
-        errors: []
-        items:
-            -
-                deleted:
-                    -
-                        "$provisioned_location"
 
 -
   name: 'Test delete storage with invalid parameters'
   params:
       request_params:
         DELETE: "/cp/v0/content?provisioned_location=shree420"
-      response_status: 200
+      expected_status: "$StatusCodes::BAD_REQUEST"
       expected_result:
         errors:
             -
@@ -66,7 +61,7 @@ sub _get_test_data {
   params:
       request_params:
         DELETE: "/cp/v0/content"
-      response_status: 200
+      expected_status: "$StatusCodes::BAD_REQUEST"
       expected_result:
         errors:
             -

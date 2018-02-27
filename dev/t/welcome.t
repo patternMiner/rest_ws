@@ -4,6 +4,7 @@ use warnings;
 use UnitTesting::Harness;
 use Log::Any qw( $log );
 use Log::Any::Adapter qw( TAP );
+use StatusCodes;
 use Test::Mojo;
 use Test2::V0;
 use Test2::Plugin::BailOnFail;
@@ -12,7 +13,7 @@ subtest "Test welcome page" => sub {
     my $config = UnitTesting::Harness::create_test_config();
     my $t = Test::Mojo->new( 'RestWs' => $config );
 
-    $t->get_ok('/')->status_is(200)->json_is(
+    $t->get_ok('/')->status_is($StatusCodes::OK)->json_is(
         {
             errors => [],
             items  => [

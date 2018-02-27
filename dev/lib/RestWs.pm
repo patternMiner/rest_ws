@@ -8,6 +8,7 @@ use AppContextBuilder;
 use CP::DownloadContentHandler;
 use CP::StorageDeallocateHandler;
 use Mojo::Base 'Mojolicious';
+use StatusCodes;
 use WelcomeRequestHandler;
 use YAML::XS;
 
@@ -30,13 +31,12 @@ sub startup {
     );
 
     my $r = $app->routes;
-
     # routes
-    $r->get( '/' => WelcomeRequestHandler->new( ctx => $ctx )->dispatch );
+    $r->get( '/' => WelcomeRequestHandler->new( ctx => $ctx )->dispatch('get') );
     $r->post( '/cp/v0/content' =>
-          CP::DownloadContentHandler->new( ctx => $ctx )->dispatch );
+          CP::DownloadContentHandler->new( ctx => $ctx )->dispatch('post') );
     $r->delete( '/cp/v0/content' =>
-        CP::StorageDeallocateHandler->new( ctx => $ctx )->dispatch );
+        CP::StorageDeallocateHandler->new( ctx => $ctx )->dispatch('delete') );
 }
 
 sub _get_config {

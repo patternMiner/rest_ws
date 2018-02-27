@@ -7,6 +7,7 @@ use File::Temp qw( tempdir );
 use Log::Any qw( $log );
 use Log::Any::Adapter qw( TAP );
 use Result;
+use StatusCodes;
 use Test::Mojo;
 use Test2::V0;
 use Test2::Plugin::BailOnFail;
@@ -43,7 +44,7 @@ sub _verify_download_content_handler {
     my $tx = $t->ua->build_tx( %{ $params->{request_params} } );
 
 
-    $t->request_ok($tx)->status_is(200);
+    $t->request_ok($tx)->status_is( $params->{expected_status} );
 
     is ($tx->res->json, $params->{expected_result}, 'Result looks good.');
 
@@ -63,6 +64,7 @@ sub _get_test_data {
             "awesome/foo"
         -
             "awesome/bar"
+    expected_status: "$StatusCodes::OK_CREATED"
     expected_result:
         items:
             -
@@ -75,6 +77,7 @@ sub _get_test_data {
         POST: "/cp/v0/content?crc=$crc&content_url=file://home/blah/blah.tar&max_size=1M"
     allocation_result:
         provisioned_location: "$allocated_location"
+    expected_status: "$StatusCodes::BAD_REQUEST"
     expected_result:
         errors:
             -
@@ -87,6 +90,7 @@ sub _get_test_data {
         POST: "/cp/v0/content?crc=$crc&max_size=1M"
     allocation_result:
         provisioned_location: "$allocated_location"
+    expected_status: "$StatusCodes::BAD_REQUEST"
     expected_result:
         errors:
             -
@@ -99,6 +103,7 @@ sub _get_test_data {
         POST: "/cp/v0/content?crc=$crc&max_size=2Q"
     allocation_result:
         provisioned_location: "$allocated_location"
+    expected_status: "$StatusCodes::BAD_REQUEST"
     expected_result:
         errors:
             -
