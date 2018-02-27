@@ -41,7 +41,7 @@ sub _get_test_data {
   params:
       request_params:
         DELETE: "/cp/v0/content?provisioned_location=$provisioned_location"
-      expected_status: "$StatusCodes::OK_NO_CONTENT"
+      expected_status: "$StatusCodes::HTTP_NO_CONTENT"
       expected_result:
 
 -
@@ -49,7 +49,7 @@ sub _get_test_data {
   params:
       request_params:
         DELETE: "/cp/v0/content?provisioned_location=shree420"
-      expected_status: "$StatusCodes::BAD_REQUEST"
+      expected_status: "$StatusCodes::HTTP_BAD_REQUEST"
       expected_result:
         errors:
             -
@@ -61,7 +61,7 @@ sub _get_test_data {
   params:
       request_params:
         DELETE: "/cp/v0/content"
-      expected_status: "$StatusCodes::BAD_REQUEST"
+      expected_status: "$StatusCodes::HTTP_BAD_REQUEST"
       expected_result:
         errors:
             -

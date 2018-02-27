@@ -13,7 +13,7 @@ subtest "Test welcome page" => sub {
     my $config = UnitTesting::Harness::create_test_config();
     my $t = Test::Mojo->new( 'RestWs' => $config );
 
-    $t->get_ok('/')->status_is($StatusCodes::OK)->json_is(
+    $t->get_ok('/')->status_is($StatusCodes::HTTP_OK)->json_is(
         {
             errors => [],
             items  => [

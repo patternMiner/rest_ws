@@ -64,7 +64,7 @@ sub _get_test_data {
             "awesome/foo"
         -
             "awesome/bar"
-    expected_status: "$StatusCodes::OK_CREATED"
+    expected_status: "$StatusCodes::HTTP_CREATED"
     expected_result:
         items:
             -
@@ -77,7 +77,7 @@ sub _get_test_data {
         POST: "/cp/v0/content?crc=$crc&content_url=file://home/blah/blah.tar&max_size=1M"
     allocation_result:
         provisioned_location: "$allocated_location"
-    expected_status: "$StatusCodes::BAD_REQUEST"
+    expected_status: "$StatusCodes::HTTP_BAD_REQUEST"
     expected_result:
         errors:
             -
@@ -90,7 +90,7 @@ sub _get_test_data {
         POST: "/cp/v0/content?crc=$crc&max_size=1M"
     allocation_result:
         provisioned_location: "$allocated_location"
-    expected_status: "$StatusCodes::BAD_REQUEST"
+    expected_status: "$StatusCodes::HTTP_BAD_REQUEST"
     expected_result:
         errors:
             -
@@ -103,7 +103,7 @@ sub _get_test_data {
         POST: "/cp/v0/content?crc=$crc&max_size=2Q"
     allocation_result:
         provisioned_location: "$allocated_location"
-    expected_status: "$StatusCodes::BAD_REQUEST"
+    expected_status: "$StatusCodes::HTTP_BAD_REQUEST"
     expected_result:
         errors:
             -

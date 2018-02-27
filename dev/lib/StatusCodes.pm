@@ -12,7 +12,7 @@ regarding the contents of the response body.
 
 Used for read-only GET operations on resources.
 
-=item 201 (OK_CREATED)
+=item 201 (HTTP_CREATED)
 
 Success code indicating that the operation was successful, and the corresponding resource has either been
 created or updated successfully. It also indicates that the response body contains the updated representation
@@ -27,14 +27,14 @@ sometime later. Does not indicate anything about the contents of the response bo
 
 Used for all asynchronous API calls.
 
-=item 204 (OK_NO_CONTENT)
+=item 204 ($HTTP_NO_CONTENT)
 
 Success code indicating that the request was successful, and the resource got deleted. Also indicates
 that the response body is empty.
 
 Used for DELETE resource operations.
 
-=item 400 (BAD_REQUEST)
+=item 400 ($HTTP_BAD_REQUEST)
 
 Error code indicating that the request was unsuccessful, and the response body contains additional information
 about the specific errors that caused the request to fail.
@@ -62,11 +62,11 @@ use strict;
 use warnings;
 use Const::Fast;
 
-const our $OK                    => 200; # The request was successful.
-const our $OK_CREATED            => 201; # The request was successful; the resource was created/updated.
-const our $ACCEPTED              => 202; # The request has been accepted for further processing.
-const our $OK_NO_CONTENT         => 204; # The request was successful; the resource was deleted.
-const our $BAD_REQUEST           => 400; # Bad request. Client should not repeat the request without modifications.
-const our $INTERNAL_SERVER_ERROR => 500; # Something went horribly wrong on the server side.
+const our $HTTP_OK                    => 200; # The request was successful.
+const our $HTTP_CREATED            => 201; # The request was successful; the resource was created/updated.
+const our $HTTP_ACCEPTED              => 202; # The request has been accepted for further processing.
+const our $HTTP_NO_CONTENT         => 204; # The request was successful; the resource was deleted.
+const our $HTTP_BAD_REQUEST           => 400; # Bad request. Client should not repeat the request without modifications.
+const our $HTTP_INTERNAL_SERVER_ERROR => 500; # Something went horribly wrong on the server side.
 
 1;

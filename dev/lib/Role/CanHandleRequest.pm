@@ -82,11 +82,11 @@ sub dispatch {
         my $result = $self->handle_request( {}, $c->req->params->to_hash );
         my $status = $StatusCodes::OK;
         if (@{$result->{errors}}) {
-            $status = $StatusCodes::BAD_REQUEST;
+            $status = $StatusCodes::HTTP_BAD_REQUEST;
         } elsif ($http_method eq 'delete') {
-            $status = $StatusCodes::OK_NO_CONTENT;
+            $status = $StatusCodes::HTTP_NO_CONTENT;
         } elsif ($http_method =~ m/put|post/) {
-            $status = $StatusCodes::OK_CREATED;
+            $status = $StatusCodes::HTTP_CREATED;
         }
 
         $c->render( json => $result, status => $status );
