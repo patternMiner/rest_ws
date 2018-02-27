@@ -41,7 +41,7 @@ package Result;
 use Array::Compare;
 use Moo;
 
-has _result => ( is => 'ro', default => sub { { errors => [], items => [] } } );
+has _hashref => ( is => 'ro', default => sub { { errors => [], items => [] } } );
 
 =head1 FUNCTIONS/METHODS
 
@@ -58,20 +58,20 @@ Constructs a new Result object from a given hashref.
 
 =item C<hashref>
 
-The hashref that will be the _result attribute of the new Result object.
+The hashref that will be the _hashref attribute of the new Result object.
 
 =back
 
 =head3 RETURN
 
-A new Result object, having the given hashref as the _result attribute.
+A new Result object, having the given hashref as the _hashref attribute.
 
 =cut
 
 sub from_hashref {
       my ($class, $hashref) = @_;
 
-      return Result->new(_result => $hashref);
+      return Result->new(_hashref => $hashref);
 }
 
 =head2 C<push_item>
@@ -97,7 +97,7 @@ self.
 sub push_item {
     my ( $self, $item ) = @_;
 
-    push( @{ $self->_result->{items} }, $item );
+    push( @{ $self->_hashref->{items} }, $item );
     return $self;
 }
 
@@ -124,7 +124,7 @@ self.
 sub push_error {
     my ( $self, $error ) = @_;
 
-    push( @{ $self->_result->{errors} }, $error );
+    push( @{ $self->_hashref->{errors} }, $error );
     return $self;
 }
 
@@ -145,7 +145,7 @@ Truthy if there are any errors. Falsy otherwise.
 sub is_error {
     my ($self) = @_;
 
-    return ( @{ $self->_result->{errors} } );
+    return ( @{ $self->_hashref->{errors} } );
 }
 
 =head2 C<to_hashref>
@@ -158,14 +158,14 @@ None.
 
 =head3 RETURN
 
-The _result attribute, that constitutes the client consumable result hashref.
+The _hashref attribute, that constitutes the client consumable result hashref.
 
 =cut
 
 sub to_hashref {
     my ($self) = @_;
 
-    return $self->_result;
+    return $self->_hashref;
 }
 
 1;
