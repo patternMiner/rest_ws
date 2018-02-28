@@ -1,16 +1,16 @@
 
 package CP::StorageDeallocateHandler;
 
+use CP::Types qw( ProvisionedLocation );
 use Log::Any qw( $log );
 use Moo;
 use Result;
 use Type::Tiny;
-use Types::Standard qw( Str );
 
 with 'Role::CanHandleRequest';
 
 my $params_validation_spec = {
-  provisioned_location => { type => Str },
+  provisioned_location => { type => ProvisionedLocation },
 };
 
 sub handle_request {

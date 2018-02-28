@@ -30,8 +30,11 @@ sub _verify_delete_storage_api {
     my $tx = $t->ua->build_tx( %{ $params->{request_params} } );
 
     $t->request_ok($tx)->status_is( $params->{expected_status}, 'Response status looks good.' );
-
-    is ($tx->res->json, $params->{expected_result}, 'Result looks good.');
+    if ($params->{expected_status} eq HTTP_NO_CONTENT) {
+        is ("", $tx->res->json, "No content, as expected.");
+    } else {
+        is ($tx->res->json, $params->{expected_result}, 'Result looks good.');
+    }
 }
 
 sub _get_test_data {
@@ -42,7 +45,6 @@ sub _get_test_data {
       request_params:
         DELETE: "/cp/v0/content?provisioned_location=$provisioned_location"
       expected_status: "$StatusCodes::HTTP_NO_CONTENT"
-      expected_result:
 
 -
   name: 'Test delete storage with invalid parameters'

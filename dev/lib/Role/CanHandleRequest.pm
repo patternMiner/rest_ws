@@ -85,6 +85,8 @@ sub dispatch {
             $status = $StatusCodes::HTTP_BAD_REQUEST;
         } elsif ($http_method eq 'delete') {
             $status = $StatusCodes::HTTP_NO_CONTENT;
+            $c->render( json => "", status => $status );
+            return;
         } elsif ($http_method =~ m/put|post/) {
             $status = $StatusCodes::HTTP_CREATED;
         }
