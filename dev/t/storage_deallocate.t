@@ -30,8 +30,8 @@ sub _verify_delete_storage_api {
     my $tx = $t->ua->build_tx( %{ $params->{request_params} } );
 
     $t->request_ok($tx)->status_is( $params->{expected_status}, 'Response status looks good.' );
-    if ($params->{expected_status} eq HTTP_NO_CONTENT) {
-        is ("", $tx->res->json, "No content, as expected.");
+    if ($params->{expected_status} eq $StatusCodes::HTTP_NO_CONTENT) {
+        is (undef, $tx->res->json, "No content, as expected.");
     } else {
         is ($tx->res->json, $params->{expected_result}, 'Result looks good.');
     }
@@ -55,7 +55,7 @@ sub _get_test_data {
       expected_result:
         errors:
             -
-                delete_error: "Failed to delete shree420."
+                invalid_parameter: "shree420 is not a valid provisioned_location."
         items: []
 
 -
