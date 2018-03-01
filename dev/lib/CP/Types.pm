@@ -31,7 +31,7 @@ declare MaxSize,
 
 declare ProvisionedLocation,
   as Str,
-    where { $_ =~ m/^.*\/\d+$/i }
+    where { $_ =~ m/^.*\/\w+$/i }
     message {
         return "$_ is not a valid provisioned_location.";
     };
