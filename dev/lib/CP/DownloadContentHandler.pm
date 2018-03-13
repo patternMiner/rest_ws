@@ -152,8 +152,8 @@ sub _extract {
 
 sub get_crc {
     my ($file) = @_;
-    open( my $fh, '<', $file ) || die;
-    binmode $fh;
+    open( my $fh, '<', $file ) || die "Failed to open $file for reading\n";
+    binmode $fh || die $!;
     my $crc = crc32(*$fh);
     close($fh);
 
